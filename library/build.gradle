@@ -19,7 +19,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         ndkVersion '22.1.7171670'
-        resConfigs "en", "ar", "ko"
+        resConfigs "ko-rKR", "en", "ar"
     }
 
     sourceSets {
