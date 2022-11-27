@@ -14,4 +14,5 @@
     <string name="yes">네</string>
     <string name="no">아니오</string>
     <string name="open_file_location">파일 위치를 열까요?</string>
+    <string name="txt_denied">권한이 부족합니다</string>
 </resources>

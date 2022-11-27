@@ -114,17 +114,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .setTrimType(TrimType.FIXED_DURATION)
                     .setFixedDuration(getEdtValueLong(edtFixedGap))
                     .setLocal("ar")
+                    .setLocal("ko-rKR")
+                    .setLocal("ko")
                     .start(this, videoTrimResultLauncher);
         } else if (trimType == 2) {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_DURATION)
                     .setLocal("ar")
+                    .setLocal("ko-rKR")
+                    .setLocal("ko")
                     .setMinDuration(getEdtValueLong(edtMinGap))
                     .start(this, videoTrimResultLauncher);
         } else {
             TrimVideo.activity(data)
                     .setTrimType(TrimType.MIN_MAX_DURATION)
                     .setLocal("ar")
+                    .setLocal("ko-rKR")
+                    .setLocal("ko")
                     .setMinToMax(getEdtValueLong(edtMinFrom), getEdtValueLong(edtMAxTo))
                     .start(this, videoTrimResultLauncher);
         }

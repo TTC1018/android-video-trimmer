@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.media.MediaMetadataRetriever;
@@ -15,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -150,7 +153,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     @Override
     protected void attachBaseContext(@NotNull Context base) {
-        super.attachBaseContext(LocaleHelper.onAttach(base, "en"));
+        super.attachBaseContext(LocaleHelper.onAttach(base, "ko"));
     }
 
     @Override
@@ -259,7 +262,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-        setLanguage(new Locale(local != null ? local : "en"));
+        setLanguage(new Locale(local != null ? local : "ko"));
     }
 
     private void onVideoClicked() {
@@ -451,7 +454,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             if (isPermissionOk(grantResults))
                 setDataInView();
             else {
-                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.txt_denied), Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
