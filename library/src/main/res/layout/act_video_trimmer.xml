@@ -6,9 +6,12 @@
     android:background="#303030"
     tools:ignore="ContentDescription">
 
-    <LinearLayout style="@style/FView">
+    <androidx.constraintlayout.widget.ConstraintLayout style="@style/FView">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#00000000"
@@ -58,17 +61,24 @@
                 app:lottie_loop="false" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <RelativeLayout style="@style/VWView">
+        <RelativeLayout
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
 
             <com.google.android.exoplayer2.ui.StyledPlayerView
                 android:id="@+id/player_view_lib"
-                style="@style/FView"
-                android:layout_gravity="center_vertical"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
                 app:use_controller="false" />
 
             <ImageView
                 android:id="@+id/image_play_pause"
                 style="@style/WView"
+                android:elevation="1dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/shape_circle_lib"
                 android:padding="12dp"
@@ -78,10 +88,11 @@
             <ProgressBar
                 android:id="@+id/progress_circular"
                 style="@style/WView"
+                android:elevation="1dp"
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include layout="@layout/view_video_controller" />
 
