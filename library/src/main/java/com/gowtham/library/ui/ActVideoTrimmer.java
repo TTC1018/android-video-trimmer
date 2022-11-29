@@ -135,24 +135,21 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private boolean hidePlayerSeek, isAccurateCut, showFileLocationAlert;
     private CustomProgressView progressView;
     private String fileName;
-    private Boolean soundFlag = true;
+    private Boolean soundFlag = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_video_trimmer);
-       // Toolbar toolbar = findViewById(R.id.toolbar);
 
         ImageView iv_trim_next = findViewById(R.id.iv_trim_next);
         ImageView iv_trim_back = findViewById(R.id.iv_trim_back);
         lottie_trim_sound_control = findViewById(R.id.lottie_trim_sound_control);
 
-      //  setSupportActionBar(toolbar);
         bundle = getIntent().getExtras();
         Gson gson = new Gson();
         String videoOption = bundle.getString(TrimVideo.TRIM_VIDEO_OPTION);
         trimVideoOptions = gson.fromJson(videoOption, TrimVideoOptions.class);
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
-       // toolbar.setNavigationOnClickListener(v -> finish());
 
         iv_trim_back.setOnClickListener(view -> finish());
         iv_trim_next.setOnClickListener(view->{
@@ -203,7 +200,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 });
                 animator.start();
             }else{
-                soundFlag= false;
+                soundFlag= true;
                 Objects.requireNonNull(playerView.getPlayer()).setVolume(0.0f);
                 ValueAnimator animator = ValueAnimator.ofFloat(0f,0.5f).setDuration(500);
                 animator.addUpdateListener(valueAnimator -> {
