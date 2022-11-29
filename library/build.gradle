@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
         consumerProguardFiles "consumer-rules.pro"
 
@@ -24,7 +24,7 @@ android {
 
     sourceSets {
         main {
-            assets.srcDirs = ['assets']
+            assets.srcDirs = ['assets', 'src\\main\\assets']
             jni.srcDirs = [] //disable automatic ndk-build
             jniLibs.srcDirs = ['../path/to/libs']
         }
@@ -53,6 +53,7 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
     implementation 'com.akexorcist:localization:1.2.9'
     implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.airbnb.android:lottie:5.0.2'
 }
 repositories {
     mavenCentral()

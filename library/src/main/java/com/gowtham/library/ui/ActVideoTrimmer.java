@@ -1,14 +1,13 @@
 package com.gowtham.library.ui;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.media.MediaMetadataRetriever;
@@ -17,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +32,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
@@ -109,6 +108,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private ProgressBar progressBar;
 
     private TrimVideoOptions trimVideoOptions;
+    private LottieAnimationView lottie_trim_sound_control;
 
     private long currentDuration, lastClickedTime;
     Runnable updateSeekbar = new Runnable() {
@@ -135,19 +135,33 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private boolean hidePlayerSeek, isAccurateCut, showFileLocationAlert;
     private CustomProgressView progressView;
     private String fileName;
-
+    private Boolean soundFlag = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_video_trimmer);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       // Toolbar toolbar = findViewById(R.id.toolbar);
+
+        ImageView iv_trim_next = findViewById(R.id.iv_trim_next);
+        ImageView iv_trim_back = findViewById(R.id.iv_trim_back);
+        lottie_trim_sound_control = findViewById(R.id.lottie_trim_sound_control);
+
+      //  setSupportActionBar(toolbar);
         bundle = getIntent().getExtras();
         Gson gson = new Gson();
         String videoOption = bundle.getString(TrimVideo.TRIM_VIDEO_OPTION);
         trimVideoOptions = gson.fromJson(videoOption, TrimVideoOptions.class);
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
-        toolbar.setNavigationOnClickListener(v -> finish());
+       // toolbar.setNavigationOnClickListener(v -> finish());
+
+        iv_trim_back.setOnClickListener(view -> finish());
+        iv_trim_next.setOnClickListener(view->{
+            if (SystemClock.elapsedRealtime() - lastClickedTime > 800){
+                lastClickedTime = SystemClock.elapsedRealtime();
+                trimVideo();
+            }
+        });
+
         progressView = new CustomProgressView(this);
     }
 
@@ -178,6 +192,27 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 imageFour, imageFive, imageSix, imageSeven, imageEight};
         seekHandler = new Handler();
         initPlayer();
+
+        lottie_trim_sound_control.setOnClickListener(view -> {
+            if (soundFlag){
+                soundFlag= false;
+                Objects.requireNonNull(playerView.getPlayer()).setVolume(0.5f);
+                ValueAnimator animator = ValueAnimator.ofFloat(0.5f,1.0f).setDuration(500);
+                animator.addUpdateListener(valueAnimator -> {
+                    lottie_trim_sound_control.setProgress((Float) valueAnimator.getAnimatedValue());
+                });
+                animator.start();
+            }else{
+                soundFlag= false;
+                Objects.requireNonNull(playerView.getPlayer()).setVolume(0.0f);
+                ValueAnimator animator = ValueAnimator.ofFloat(0f,0.5f).setDuration(500);
+                animator.addUpdateListener(valueAnimator -> {
+                    lottie_trim_sound_control.setProgress((Float) valueAnimator.getAnimatedValue());
+                });
+                animator.start();
+            }
+        });
+
         if (checkStoragePermission())
             setDataInView();
     }
@@ -200,13 +235,11 @@ public class ActVideoTrimmer extends LocalizationActivity {
             videoPlayer = new ExoPlayer.Builder(this).build();
             playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
             playerView.setPlayer(videoPlayer);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                        .setUsage(C.USAGE_MEDIA)
-                        .setContentType(C.CONTENT_TYPE_MOVIE)
-                        .build();
-                videoPlayer.setAudioAttributes(audioAttributes, true);
-            }
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(C.USAGE_MEDIA)
+                    .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                    .build();
+            videoPlayer.setAudioAttributes(audioAttributes, true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -483,12 +516,13 @@ public class ActVideoTrimmer extends LocalizationActivity {
         return true;
     }
 
+    // 완료
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menuDone = menu.findItem(R.id.action_done);
         return super.onPrepareOptionsMenu(menu);
     }
-
+    // 완료
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
