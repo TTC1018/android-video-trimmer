@@ -1,6 +1,6 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/hyperium/hyper/master/LICENSE)
 [![](https://jitpack.io/v/jZAIKO/android-video-trimmer.svg)](https://jitpack.io/#jZAIKO/android-video-trimmer)
-[![](https://jitpack.io/v/a914-gowtham/android-video-trimmer.svg)](https://jitpack.io/#a914-gowtham/android-video-trimmer)
+[![](https://jitpack.io/v/TTC1018/android-video-trimmer.svg)](https://jitpack.io/#TTC1018/android-video-trimmer)
 
 # Android-video-trimmer
 
@@ -17,7 +17,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.TTC1018:android-video-trimmer:0.0.7'
+    implementation 'com.github.TTC1018:android-video-trimmer:0.1.0'
  }
  ```
  + Add to project's root `build.gradle` file:
