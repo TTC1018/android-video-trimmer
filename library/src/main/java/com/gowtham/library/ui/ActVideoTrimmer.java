@@ -603,7 +603,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 return new String[]{
                         "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                         "-i", String.valueOf(uri),
-                        "-r", "24",
+                        "-r", String.valueOf(compressOption.getFrameRate()),
                         "-vf", String.format("scale=%d:-1", compressOption.getWidth()),
                         "-c:v", "libx265", "-vtag", "hvc1",
                         "-crf", "28",
@@ -615,7 +615,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
                 return new String[]{
                         "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                         "-i", String.valueOf(uri),
-                        "-r", "24",
+                        "-r", String.valueOf(compressOption.getFrameRate()),
                         "-vf", String.format("scale=-1:%d", compressOption.getHeight()),
                         "-c:v", "libx265", "-vtag", "hvc1",
                         "-crf", "28",
