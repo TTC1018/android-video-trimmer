@@ -589,41 +589,51 @@ public class ActVideoTrimmer extends LocalizationActivity {
         int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
         int h = Integer.parseInt(height);
         int rotation = TrimmerUtils.getVideoRotation(this, uri);
+
         if (rotation == 90 || rotation == 270) {
             int temp = w;
             w = h;
             h = temp;
         }
-        //Default compression option
+
+        // It will maintain ratio and shorter will be fitted to longer
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(uri), "-s", compressOption.getWidth() + "x" +
-                    compressOption.getHeight(),
-                    "-r", String.valueOf(compressOption.getFrameRate()),
-                    "-vcodec", "mpeg4", "-b:v",
-                    compressOption.getBitRate(), "-b:a", "48000", "-ac", "2", "-ar",
-                    "22050", "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
+            if (compressOption.getWidth() != 0){ // Portrait
+                return new String[]{
+                        "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                        "-i", String.valueOf(uri),
+                        "-r", "24",
+                        "-vf", String.format("scale=%d:-1", compressOption.getWidth()),
+                        "-c:v", "libx265", "-vtag", "hvc1",
+                        "-crf", "28",
+                        "-preset", "ultrafast",
+                        "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                        outputPath};
+            }
+            else { // Landscape
+                return new String[]{
+                        "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                        "-i", String.valueOf(uri),
+                        "-r", "24",
+                        "-vf", String.format("scale=-1:%d", compressOption.getHeight()),
+                        "-c:v", "libx265", "-vtag", "hvc1",
+                        "-crf", "28",
+                        "-preset", "ultrafast",
+                        "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                        outputPath};
+            }
         }
-        //Dividing high resolution video by 2(ex: taken with camera)
-        else if (w >= 800) {
-            w = w / 2;
-            h = Integer.parseInt(height) / 2;
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+        else {
+            return new String[]{
+                    "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                     "-i", String.valueOf(uri),
-                    "-s", w + "x" + h, "-r", "30",
-                    "-vcodec", "mpeg4", "-b:v",
-                    "1M", "-b:a", "48000", "-ac", "2", "-ar", "22050",
-                    "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
-        } else {
-            return new String[]{"-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                    "-i", String.valueOf(uri), "-s", w + "x" + h, "-r",
-                    "30", "-vcodec", "mpeg4", "-b:v",
-                    "400K", "-b:a", "48000", "-ac", "2", "-ar", "22050",
-                    "-t",
-                    TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue), outputPath};
+                    "-r", "24",
+                    "-c:v", "libx265", "-vtag", "hvc1",
+                    "-crf", "28",
+                    "-preset", "ultrafast",
+                    "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                    outputPath};
         }
     }
 
