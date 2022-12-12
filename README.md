@@ -17,7 +17,7 @@
 + Take a look at light weight version of this library [Android-video-trimmer-litr](https://github.com/a914-gowtham/android-video-trimmer-litr)
  ```gradle
  dependencies {
-    implementation 'com.github.TTC1018:android-video-trimmer:0.1.0'
+    implementation 'com.github.TTC1018:android-video-trimmer:0.1.1'
  }
  ```
  + Add to project's root `build.gradle` file:
@@ -146,8 +146,8 @@ TrimVideo.activity(videoUri)
 
 ## Compatibility
   
-  * Library - Android Kitkat 4.4+ (API 19)
-  * Sample - Android Kitkat 4.4+ (API 19)
+  * Library - Android Nougat 7.0+ (API 24)
+  * Sample - Android Nougat 7.0+ (API 24)
   
 ## Thanks to 
 [TanerSener](https://github.com/tanersener/mobile-ffmpeg)
