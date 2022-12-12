@@ -156,13 +156,9 @@ public class TrimmerUtils {
             retriever.setDataSource(context,videoPath);
             int width = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             int height = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-            String metaRotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-            int rotation = metaRotation == null ? 0 : Integer.parseInt(metaRotation);
             retriever.release();
-            if (rotation == 90 || rotation == 270)
-                return new int[]{height, width};
-            else
-                return new int[]{width, height};
+
+            return new int[]{width, height};
         } catch (Exception e) {
             e.printStackTrace();
         }
