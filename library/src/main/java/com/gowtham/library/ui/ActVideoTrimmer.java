@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -640,7 +641,9 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
             new Thread(() -> {
+                Log.d("Trimming Started", String.valueOf(System.currentTimeMillis()));
                 int result = FFmpeg.execute(command);
+                Log.d("Trimming Ended", String.valueOf(System.currentTimeMillis()));
                 if (result == 0) {
                     dialog.dismiss();
                     if (showFileLocationAlert)
