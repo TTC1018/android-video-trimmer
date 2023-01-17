@@ -29,12 +29,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
+import com.arthenica.mobileffmpeg.ExecuteCallback;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -165,7 +165,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
     @Override
     protected void attachBaseContext(@NotNull Context base) {
-        super.attachBaseContext(LocaleHelper.onAttach(base, "ko"));
+        super.attachBaseContext(LocaleHelper.onAttach(base));
     }
 
     @Override
@@ -641,41 +641,17 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private void execFFmpegBinary(final String[] command, boolean retry) {
         try {
             new Thread(() -> {
-                Log.d("Trimming Started", String.valueOf(System.currentTimeMillis()));
-                int result = FFmpeg.execute(command);
-                Log.d("Trimming Ended", String.valueOf(System.currentTimeMillis()));
-                if (result == 0) {
-                    dialog.dismiss();
-                    if (showFileLocationAlert)
-                        showLocationAlert();
-                    else {
-                        Intent intent = new Intent();
-                        intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
-                        setResult(RESULT_OK, intent);
-                        finish();
-                    }
-                } else if (result == 255) {
-                    LogMessage.v("Command cancelled");
-                    if (dialog.isShowing())
-                        dialog.dismiss();
-                } else {
-                    // Failed case:
-                    // line 489 command fails on some devices in
-                    // that case retrying with accurateCmt as alternative command
-                    if (retry && !isAccurateCut && compressOption == null) {
-                        File newFile = new File(outputPath);
-                        if (newFile.exists())
-                            newFile.delete();
-                        execFFmpegBinary(getAccurateCmd(), false);
-                    } else {
-                        if (dialog.isShowing())
-                            dialog.dismiss();
-                        runOnUiThread(() ->
-                                Toast.makeText(ActVideoTrimmer.this, "Failed to trim", Toast.LENGTH_SHORT).show());
-                    }
-                }
+                dialog.dismiss(); // No dialog process
+                FFmpeg.executeAsync(command, new ExecuteCallback() {
+                    @Override
+                    public void apply(long executionId, int returnCode) { }
+                });
             }).start();
 
+            Intent intent = new Intent();
+            intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+            setResult(RESULT_OK, intent);
+            finish(); // close activity immediately
 
         } catch (Exception e) {
             e.printStackTrace();

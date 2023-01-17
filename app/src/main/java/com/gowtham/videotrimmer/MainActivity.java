@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +25,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.arthenica.mobileffmpeg.Config;
+import com.arthenica.mobileffmpeg.Statistics;
+import com.arthenica.mobileffmpeg.StatisticsCallback;
 import com.cocosw.bottomsheet.BottomSheet;
+import com.google.android.material.snackbar.Snackbar;
 import com.gowtham.library.utils.CompressOption;
 import com.gowtham.library.utils.FileUtils;
 import com.gowtham.library.utils.LogMessage;
@@ -33,6 +38,7 @@ import com.gowtham.library.utils.TrimVideo;
 import com.gowtham.library.utils.TrimmerUtils;
 
 import java.io.File;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText edtFixedGap, edtMinGap, edtMinFrom, edtMAxTo;
     private int trimType;
 
+    private int YOUR_VIDEO_DURATION = 10000;
+
     ActivityResultLauncher<Intent> videoTrimResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -49,13 +57,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         result.getData() != null) {
                     Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
                     Log.d(TAG, "Trimmed path:: " + uri);
-                    videoView.setMediaController(mediaController);
-                    videoView.setVideoURI(uri);
-                    videoView.requestFocus();
-                    videoView.start();
 
-                    videoView.setOnPreparedListener(mediaPlayer -> {
-                        mediaController.setAnchorView(videoView);
+                    Config.resetStatistics();
+                    Config.enableStatisticsCallback(new StatisticsCallback() {
+                        @Override
+                        public void apply(Statistics statistics) {
+                            float progress = (float) statistics.getTime() / YOUR_VIDEO_DURATION * 100;
+                            Snackbar.make(videoView.getRootView(), "Progressed " + String.format("%.0f", progress) + "%", Snackbar.LENGTH_SHORT).show();
+                            if (progress >= 100){
+                                videoView.setMediaController(mediaController);
+                                videoView.setVideoURI(uri);
+                                videoView.requestFocus();
+                            }
+                        }
+                    });
+                    videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mediaController.setAnchorView(videoView);
+                            videoView.start();
+                        }
                     });
 
                     String filepath = String.valueOf(uri);
@@ -109,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (trimType == 0) {
             TrimVideo.activity(data)
                     .setCompressOption(new CompressOption()) //pass empty constructor for default compress option
+                    .setLocal(this.getResources().getConfiguration().getLocales().get(0).getLanguage())
                     .start(this, videoTrimResultLauncher);
         } else if (trimType == 1) {
             TrimVideo.activity(data)
