@@ -15,7 +15,7 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 public class TrimVideo {
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",TRIMMED_VIDEO_START_MILLI="trimmed_video_start_milli";
 
     public static ActivityBuilder activity(String uri) {
         return new ActivityBuilder(uri);
@@ -23,6 +23,10 @@ public class TrimVideo {
 
     public static String getTrimmedVideoPath(Intent intent){
         return intent.getStringExtra(TRIMMED_VIDEO_PATH);
+    }
+
+    public static Long getTrimmedStartMilli(Intent intent){
+        return intent.getLongExtra(TRIMMED_VIDEO_START_MILLI, 0L);
     }
 
     public static final class ActivityBuilder {

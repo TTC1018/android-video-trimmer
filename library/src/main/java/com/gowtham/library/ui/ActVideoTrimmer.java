@@ -650,6 +650,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
             Intent intent = new Intent();
             intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
+            intent.putExtra(TrimVideo.TRIMMED_VIDEO_START_MILLI, lastMinValue * 1000);
             setResult(RESULT_OK, intent);
             finish(); // close activity immediately
 
