@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.akexorcist.localizationactivity.ui.LocalizationActivity;
+import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.ExecuteCallback;
 import com.arthenica.mobileffmpeg.FFmpeg;
 import com.bumptech.glide.Glide;
@@ -600,30 +601,16 @@ public class ActVideoTrimmer extends LocalizationActivity {
         // It will maintain ratio and shorter will be fitted to longer
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {
-            if (compressOption.getWidth() != 0){ // Portrait
                 return new String[]{
                         "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                         "-i", String.valueOf(uri),
                         "-r", String.valueOf(compressOption.getFrameRate()),
-                        "-vf", String.format("scale=%d:-1", compressOption.getWidth()),
+                        "-vf", String.format("scale=%d:%d", compressOption.getWidth(), compressOption.getHeight()),
                         "-c:v", "libx265", "-vtag", "hvc1",
                         "-crf", "28",
                         "-preset", "ultrafast",
                         "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
                         outputPath};
-            }
-            else { // Landscape
-                return new String[]{
-                        "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                        "-i", String.valueOf(uri),
-                        "-r", String.valueOf(compressOption.getFrameRate()),
-                        "-vf", String.format("scale=-1:%d", compressOption.getHeight()),
-                        "-c:v", "libx265", "-vtag", "hvc1",
-                        "-crf", "28",
-                        "-preset", "ultrafast",
-                        "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        outputPath};
-            }
         }
         else {
             return new String[]{
