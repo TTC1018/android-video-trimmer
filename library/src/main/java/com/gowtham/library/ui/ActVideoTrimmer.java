@@ -586,19 +586,15 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private String[] getCompressionCmd() {
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(String.valueOf(uri));
-        String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        int w = TrimmerUtils.clearNull(width).isEmpty() ? 0 : Integer.parseInt(width);
-        int h = Integer.parseInt(height);
         int rotation = TrimmerUtils.getVideoRotation(this, uri);
-
         if (rotation == 90 || rotation == 270) {
-            int temp = w;
-            w = h;
-            h = temp;
+            int w = compressOption.getWidth();
+            int h = compressOption.getHeight();
+
+            compressOption.setWidth(h);
+            compressOption.setHeight(w);
         }
 
-        // It will maintain ratio and shorter will be fitted to longer
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {
                 return new String[]{
