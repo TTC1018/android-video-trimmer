@@ -138,6 +138,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
     private CustomProgressView progressView;
     private String fileName;
     private Boolean soundFlag = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,8 +155,8 @@ public class ActVideoTrimmer extends LocalizationActivity {
         setUpToolBar(getSupportActionBar(), trimVideoOptions.title);
 
         iv_trim_back.setOnClickListener(view -> finish());
-        iv_trim_next.setOnClickListener(view->{
-            if (SystemClock.elapsedRealtime() - lastClickedTime > 800){
+        iv_trim_next.setOnClickListener(view -> {
+            if (SystemClock.elapsedRealtime() - lastClickedTime > 800) {
                 lastClickedTime = SystemClock.elapsedRealtime();
                 trimVideo();
             }
@@ -193,18 +194,18 @@ public class ActVideoTrimmer extends LocalizationActivity {
         initPlayer();
 
         lottie_trim_sound_control.setOnClickListener(view -> {
-            if (soundFlag){
-                soundFlag= false;
+            if (soundFlag) {
+                soundFlag = false;
                 Objects.requireNonNull(playerView.getPlayer()).setVolume(0.5f);
-                ValueAnimator animator = ValueAnimator.ofFloat(0.5f,1.0f).setDuration(500);
+                ValueAnimator animator = ValueAnimator.ofFloat(0.5f, 1.0f).setDuration(500);
                 animator.addUpdateListener(valueAnimator -> {
                     lottie_trim_sound_control.setProgress((Float) valueAnimator.getAnimatedValue());
                 });
                 animator.start();
-            }else{
-                soundFlag= true;
+            } else {
+                soundFlag = true;
                 Objects.requireNonNull(playerView.getPlayer()).setVolume(0.0f);
-                ValueAnimator animator = ValueAnimator.ofFloat(0f,0.5f).setDuration(500);
+                ValueAnimator animator = ValueAnimator.ofFloat(0f, 0.5f).setDuration(500);
                 animator.addUpdateListener(valueAnimator -> {
                     lottie_trim_sound_control.setProgress((Float) valueAnimator.getAnimatedValue());
                 });
@@ -249,7 +250,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
             Runnable fileUriRunnable = () -> {
                 uri = Uri.parse(bundle.getString(TrimVideo.TRIM_VIDEO_URI));
 //              String path = FileUtils.getPath(ActVideoTrimmer.this, uri);
-                String path=FileUtils.getRealPath(ActVideoTrimmer.this,uri);
+                String path = FileUtils.getRealPath(ActVideoTrimmer.this, uri);
                 uri = Uri.parse(path);
                 runOnUiThread(() -> {
                     LogMessage.v("VideoUri:: " + uri);
@@ -521,6 +522,7 @@ public class ActVideoTrimmer extends LocalizationActivity {
         menuDone = menu.findItem(R.id.action_done);
         return super.onPrepareOptionsMenu(menu);
     }
+
     // 완료
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -597,18 +599,17 @@ public class ActVideoTrimmer extends LocalizationActivity {
 
         if (compressOption.getWidth() != 0 || compressOption.getHeight() != 0
                 || !compressOption.getBitRate().equals("0k")) {
-                return new String[]{
-                        "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
-                        "-i", String.valueOf(uri),
-                        "-r", String.valueOf(compressOption.getFrameRate()),
-                        "-vf", String.format("scale=%d:%d", compressOption.getWidth(), compressOption.getHeight()),
-                        "-c:v", "libx265", "-vtag", "hvc1",
-                        "-crf", "28",
-                        "-preset", "ultrafast",
-                        "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
-                        outputPath};
-        }
-        else {
+            return new String[]{
+                    "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
+                    "-i", String.valueOf(uri),
+                    "-r", String.valueOf(compressOption.getFrameRate()),
+                    "-vf", String.format("scale=%d:%d", compressOption.getWidth(), compressOption.getHeight()),
+                    "-c:v", "libx265", "-vtag", "hvc1",
+                    "-crf", "28",
+                    "-preset", "ultrafast",
+                    "-t", TrimmerUtils.formatCSeconds(lastMaxValue - lastMinValue),
+                    outputPath};
+        } else {
             return new String[]{
                     "-ss", TrimmerUtils.formatCSeconds(lastMinValue),
                     "-i", String.valueOf(uri),
@@ -622,18 +623,21 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     private void execFFmpegBinary(final String[] command, boolean retry) {
+        long intendedTrimmedDurationMs = (lastMaxValue - lastMinValue) * 1000;
         try {
             new Thread(() -> {
                 dialog.dismiss(); // No dialog process
                 FFmpeg.executeAsync(command, new ExecuteCallback() {
                     @Override
-                    public void apply(long executionId, int returnCode) { }
+                    public void apply(long executionId, int returnCode) {
+                    }
                 });
             }).start();
 
             Intent intent = new Intent();
             intent.putExtra(TrimVideo.TRIMMED_VIDEO_PATH, outputPath);
             intent.putExtra(TrimVideo.TRIMMED_VIDEO_START_MILLI, lastMinValue * 1000);
+            intent.putExtra(TrimVideo.INTENDED_TRIMMED_DURATION_MS, intendedTrimmedDurationMs);
             setResult(RESULT_OK, intent);
             finish(); // close activity immediately
 
@@ -697,12 +701,22 @@ public class ActVideoTrimmer extends LocalizationActivity {
     }
 
     private boolean checkStoragePermission() {
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU){
-            return checkPermission(Manifest.permission.READ_MEDIA_VIDEO);
-        }
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return checkPermission(
-                    Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_MEDIA_LOCATION);
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                    Manifest.permission.ACCESS_MEDIA_LOCATION
+            );
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+            return checkPermission(
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.ACCESS_MEDIA_LOCATION
+            );
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return checkPermission(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_MEDIA_LOCATION
+            );
         } else
             return checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
 

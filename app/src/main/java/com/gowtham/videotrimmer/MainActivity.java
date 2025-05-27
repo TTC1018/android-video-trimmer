@@ -58,16 +58,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Uri uri = Uri.parse(TrimVideo.getTrimmedVideoPath(result.getData()));
                     Log.d(TAG, "Trimmed path:: " + uri);
 
+                    long intendedTrimmedDurationMs = TrimVideo.getIntendedTrimmedDurationMs(result.getData());
+
+                    if (intendedTrimmedDurationMs <= 0) {
+                        Log.w(TAG, "Intended trimmed duration not available or invalid. Progress might be inaccurate.");
+                        // 대체값으로 실제 생성된 파일의 길이를 읽어오거나 기본값을 사용할 수 있습니다.
+                        // 하지만 FFmpeg 처리 중에는 파일이 완전히 쓰이지 않았을 수 있어 이상적이지 않습니다.
+                        intendedTrimmedDurationMs = TrimmerUtils.getDurationMillis(MainActivity.this, uri);
+                        if (intendedTrimmedDurationMs <= 0) {
+                            intendedTrimmedDurationMs = 10000; // 최후의 기본값 (예: 10초)
+                            Log.e(TAG, "Could not determine trimmed video duration. Using default for progress.");
+                        }
+                    }
+
+                    final long effectiveTotalDuration = intendedTrimmedDurationMs;
+
                     Config.resetStatistics();
                     Config.enableStatisticsCallback(new StatisticsCallback() {
                         @Override
                         public void apply(Statistics statistics) {
-                            float progress = (float) statistics.getTime() / YOUR_VIDEO_DURATION * 100;
-                            Snackbar.make(videoView.getRootView(), "Progressed " + String.format("%.0f", progress) + "%", Snackbar.LENGTH_SHORT).show();
-                            if (progress >= 100){
+                            float progress = 0;
+                            if (effectiveTotalDuration > 0) {
+                                // statistics.getTime()은 FFmpeg이 현재까지 처리한 시간 (ms)
+                                progress = ((float) statistics.getTime() / effectiveTotalDuration) * 100;
+                            }
+                            // UI 표시를 위해 진행률을 0-100% 사이로 제한
+                            progress = Math.max(0f, Math.min(progress, 100f));
+
+                            Snackbar.make(videoView.getRootView(), "Progressed " + String.format(Locale.US, "%.0f", progress) + "%", Snackbar.LENGTH_SHORT).show();
+
+                            // 진행률이 거의 100%에 도달하면 비디오 재생 준비
+                            if (progress >= 99.9f) { // 부동 소수점 비교를 위해 임계값 사용
                                 videoView.setMediaController(mediaController);
                                 videoView.setVideoURI(uri);
                                 videoView.requestFocus();
+                                // 필요하다면 여기서 통계 콜백 비활성화
+                                // Config.disableStatisticsCallback();
                             }
                         }
                     });
@@ -93,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (result.getResultCode() == Activity.RESULT_OK &&
                         result.getData() != null) {
                     Intent data = result.getData();
-                  //check video duration if needed
+                    //check video duration if needed
            /*        if (TrimmerUtils.getDuration(this,data.getData())<=30){
                     Toast.makeText(this,"Video should be larger than 30 sec",Toast.LENGTH_SHORT).show();
                     return;
@@ -161,19 +187,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_default_trim:
-                onDefaultTrimClicked();
-                break;
-            case R.id.btn_fixed_gap:
-                onFixedTrimClicked();
-                break;
-            case R.id.btn_min_gap:
-                onMinGapTrimClicked();
-                break;
-            case R.id.btn_min_max_gap:
-                onMinToMaxTrimClicked();
-                break;
+        if (v.getId() == R.id.btn_default_trim) {
+            onDefaultTrimClicked();
+        } else if (v.getId() == R.id.btn_fixed_gap) {
+            onFixedTrimClicked();
+        } else if (v.getId() == R.id.btn_min_gap) {
+            onMinGapTrimClicked();
+        } else if (v.getId() == R.id.btn_min_max_gap) {
+            onMinToMaxTrimClicked();
         }
     }
 
@@ -269,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean checkCamStoragePer() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            return checkPermission(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.CAMERA);
+            return checkPermission(Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED, Manifest.permission.ACCESS_MEDIA_LOCATION);
         else
             return checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA);
     }

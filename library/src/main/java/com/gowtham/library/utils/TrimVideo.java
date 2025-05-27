@@ -15,7 +15,8 @@ import com.gowtham.library.ui.ActVideoTrimmer;
 public class TrimVideo {
 
     public static final String TRIM_VIDEO_OPTION = "trim_video_option",
-            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",TRIMMED_VIDEO_START_MILLI="trimmed_video_start_milli";
+            TRIM_VIDEO_URI = "trim_video_uri",TRIMMED_VIDEO_PATH="trimmed_video_path",TRIMMED_VIDEO_START_MILLI="trimmed_video_start_milli"
+            ,INTENDED_TRIMMED_DURATION_MS = "intended_trimmed_duration_ms";;
 
     public static ActivityBuilder activity(String uri) {
         return new ActivityBuilder(uri);
@@ -27,6 +28,10 @@ public class TrimVideo {
 
     public static Long getTrimmedStartMilli(Intent intent){
         return intent.getLongExtra(TRIMMED_VIDEO_START_MILLI, 0L);
+    }
+
+    public static Long getIntendedTrimmedDurationMs(Intent intent){ // 메소드 추가
+        return intent.getLongExtra(INTENDED_TRIMMED_DURATION_MS, 0L);
     }
 
     public static final class ActivityBuilder {
