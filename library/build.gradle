@@ -3,8 +3,10 @@ apply plugin: 'com.android.library'
 group='com.github.TTC1018'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 36
     buildToolsVersion "31.0.0"
+
+    namespace = "com.gowtham.library"
 
     packagingOptions {
         pickFirst 'lib/x86/libc++_shared.so'
@@ -15,7 +17,7 @@ android {
 
     defaultConfig {
         minSdkVersion 24
-        targetSdkVersion 33
+        targetSdkVersion 36
         consumerProguardFiles "consumer-rules.pro"
 
         ndkVersion '22.1.7171670'
@@ -45,10 +47,10 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    api files('libs/mobile-ffmpeg-min-gpl.aar')
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.exoplayer:exoplayer:2.18.2'
-    implementation 'com.arthenica:mobile-ffmpeg-min-gpl:4.4'
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
     implementation 'com.akexorcist:localization:1.2.9'
